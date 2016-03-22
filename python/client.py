@@ -179,7 +179,7 @@ class Client(object):
 
     # A dict of listnames and sblist.Lists.
     if sb_lists:
-      self._sbls = dict([(x.Name(), x) for x in sb_lists])
+      self._sbls = {x.Name(): x for x in sb_lists}
     else:
       self._sbls = self._datastore.GetLists()
     clientkey = self._datastore.GetClientKey()
@@ -195,8 +195,7 @@ class Client(object):
       self._Rekey()
 
     if not self._sbls:
-      self._sbls = dict(
-        [(x.Name(), x) for x in self._server.GetLists()])
+      self._sbls = {x.Name(): x for x in self._server.GetLists()}
 
     # This lock prevents concurrent access from the background updater thread
     # and user threads.
