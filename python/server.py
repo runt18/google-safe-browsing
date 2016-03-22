@@ -195,7 +195,7 @@ class Server(object):
     except ValueError, e:
       raise ResponseError('Could not parse next for downloads: "%s"' % (line,))
     active_sbl = None
-    sblist_map = dict([(l.Name(), l) for l in sbls])
+    sblist_map = {l.Name(): l for l in sbls}
     logging.debug('valid list names: "%s"', ','.join(sblist_map.iterkeys()))
     while linereader.ReadLine() != '':
       line = linereader.LastLine().strip()
