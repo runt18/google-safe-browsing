@@ -292,7 +292,7 @@ class Client(object):
       self._exit_cond.acquire()
       try:
         if not self._exit_updater:
-          logging.info('Waiting %d seconds' % delay)
+          logging.info('Waiting {0:d} seconds'.format(delay))
           self._exit_cond.wait(delay)
         if self._exit_updater:
           logging.info('Exiting')
@@ -379,12 +379,12 @@ class UrlChecker(object):
     for url in self._urls:
       matches = cl.CheckUrl(url)
       logging.info('CheckUrl %s: %s', url, matches)
-      print '%s:' % (url,)
+      print '{0!s}:'.format(url)
       if len(matches) == 0:
         print '\t(no matches)'
       else:
         for listname, matching in matches:
-          print '\t%s: %s' % (listname, matching)
+          print '\t{0!s}: {1!s}'.format(listname, matching)
     self._event.set()
 
   def WaitForFinish(self):

@@ -132,8 +132,7 @@ def VerifyTestComplete():
   complete = True
   for (step, step_list) in response_data_by_step.iteritems():
     if len(step_list):
-      print ("Step %s has %d request(s) that were not made %s" %
-             (step, len(step_list), step_list))
+      print ("Step {0!s} has {1:d} request(s) that were not made {2!s}".format(step, len(step_list), step_list))
       complete = False
 
   for (step, hash_step_dict) in hash_data_by_step.iteritems():
@@ -149,13 +148,13 @@ def VerifyTestComplete():
                 expression))
         # This information is slightly redundant with what will be printed below
         # but it is occasionally worth seeing.
-        print "Response %s" % response
+        print "Response {0!s}".format(response)
         cur_index = 0
         while cur_index < len(response):
           end_header_index = response.find('\n', cur_index + 1)
           header = response[cur_index:end_header_index]
           (listname, chunk_num, hashdatalen) = header.split(":")
-          print "   List '%s' in add chunk num %s" % (listname, chunk_num)
+          print "   List '{0!s}' in add chunk num {1!s}".format(listname, chunk_num)
           cur_index = end_header_index + int(hashdatalen) + 1
 
         complete = False
@@ -187,7 +186,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     if client_key is None:
       return response
     unescaped_mac = hmac.new(client_key, response, sha).digest()
-    return "%s%s\n%s" % (is_downloads_request and "m:" or "",
+    return "{0!s}{1!s}\n{2!s}".format(is_downloads_request and "m:" or "",
                        base64.urlsafe_b64encode(unescaped_mac),
                        response)
 
@@ -235,7 +234,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     if not hashes_for_step:
       self.send_response(400)
       self.end_headers()
-      print "No response for step %d" % step
+      print "No response for step {0:d}".format(step)
       return
 
     post_data = self.rfile.read(int(self.headers['Content-Length']))
@@ -246,7 +245,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     if not match:
       self.send_response(400)
       self.end_headers()
-      print "Gethash request is malformed %s" % post_data
+      print "Gethash request is malformed {0!s}".format(post_data)
       return
 
     prefixsize = int(match.group('prefixsize'))
@@ -286,7 +285,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     if not responses_for_step:
       self.send_response(400)
       self.end_headers()
-      print "No responses for step %d" % step
+      print "No responses for step {0:d}".format(step)
       return
 
     # Delete unnecessary params
@@ -308,9 +307,9 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     if expected_path != path or param_key != expected_params:
       self.send_response(400)
       self.end_headers()
-      print "Expected request with path %s and params %s." % (expected_path,
+      print "Expected request with path {0!s} and params {1!s}.".format(expected_path,
                                                               expected_params)
-      print "Actual request path %s and params %s" % (path, param_key)
+      print "Actual request path {0!s} and params {1!s}".format(path, param_key)
       return
 
     # Remove request that was just made
@@ -327,7 +326,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     if path == DOWNLOADS_PATH:
       # Need to have the redirects point to the current port.
       server_response = re.sub(r'localhost:\d+',
-                               '%s:%d' % (self.server.server_address[0],
+                               '{0!s}:{1:d}'.format(self.server.server_address[0],
                                           self.server.server_port),
                                server_response)
       # Remove the current MAC, because it's going to be wrong now.

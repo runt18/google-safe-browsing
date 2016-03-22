@@ -146,7 +146,7 @@ class List(object):
     """
     Return True iff there is a prefix to remove.
     """
-    logmsg = '%s:%d:%s' % (self.Name(), addchunknum, util.Bin2Hex(prefix))
+    logmsg = '{0!s}:{1:d}:{2!s}'.format(self.Name(), addchunknum, util.Bin2Hex(prefix))
     logging.debug('attempted sub: %s', logmsg)
 
     # Lets see if we already have the corresponding add entry.
@@ -184,8 +184,8 @@ class List(object):
     data.  If data currently exists for the chunk it is removed.
     """
     if self.DeleteAddChunk(addchunknum):
-      logging.debug("Removing data that was associated with add chunk %d" %
-                    addchunknum)
+      logging.debug("Removing data that was associated with add chunk {0:d}".format(
+                    addchunknum))
     self._chunknum_map[addchunknum] = {}
 
   def AddEmptySubChunk(self, subchunknum):
@@ -248,18 +248,18 @@ class List(object):
     addnums.sort()
     subnums = self._subchunks.keys()
     subnums.sort()
-    dlreq = '%s;' % (self.Name(),)
+    dlreq = '{0!s};'.format(self.Name())
     if addnums:
-      dlreq = '%sa:%s' % (dlreq, self._GetRangeStr(addnums))
+      dlreq = '{0!s}a:{1!s}'.format(dlreq, self._GetRangeStr(addnums))
     if subnums:
       if addnums:
-        dlreq = '%s:' % (dlreq,)
-      dlreq = '%ss:%s' % (dlreq, self._GetRangeStr(subnums))
+        dlreq = '{0!s}:'.format(dlreq)
+      dlreq = '{0!s}s:{1!s}'.format(dlreq, self._GetRangeStr(subnums))
     if should_mac:
       if addnums or subnums:
-        dlreq = '%s:mac' % (dlreq,)
+        dlreq = '{0!s}:mac'.format(dlreq)
       else:
-        dlreq = '%smac' % (dlreq,)
+        dlreq = '{0!s}mac'.format(dlreq)
     return dlreq
 
   def _GetRangeStr(self, nums):
@@ -309,7 +309,7 @@ class AddEntry(object):
     f = self._fulllength
     if f is not None:
       f = util.Bin2Hex(f)
-    return 'AddEntry(%s, %s, %d)' % (p, f, self._addchunknum)
+    return 'AddEntry({0!s}, {1!s}, {2:d})'.format(p, f, self._addchunknum)
 
   def __eq__(self, other):
     return str(self) == str(other)
@@ -356,7 +356,7 @@ class SubEntry(object):
     self._addnum = addchunknum
 
   def __str__(self):
-    return 'SubEntry(%s, sub:%d, add:%d)' % (util.Bin2Hex(self.Prefix()),
+    return 'SubEntry({0!s}, sub:{1:d}, add:{2:d})'.format(util.Bin2Hex(self.Prefix()),
                                              self.SubNum(), self.AddNum())
 
   def __cmp__(self, other):

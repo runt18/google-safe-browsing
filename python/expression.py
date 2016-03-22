@@ -62,7 +62,7 @@ class ExpressionGenerator(object):
   DEFAULT_PORTS = {'http': '80', 'https': '443', 'ftp': '21'}
 
   def __init__(self, url):
-    parse_exception = UrlParseError('failed to parse URL "%s"' % (url,))
+    parse_exception = UrlParseError('failed to parse URL "{0!s}"'.format(url))
     canonical_url = ExpressionGenerator.CanonicalizeUrl(url)
     if not canonical_url:
       raise parse_exception
@@ -277,7 +277,7 @@ class ExpressionGenerator(object):
 
     while len(ip) < 4:
       ip.append(0)
-    return '%u.%u.%u.%u' % tuple(ip)
+    return '{0:d}.{1:d}.{2:d}.{3:d}'.format(*tuple(ip))
 
   def Expressions(self):
     """
