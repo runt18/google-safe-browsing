@@ -57,7 +57,7 @@ class CanonicalizationTest(unittest.TestCase):
     for testip, expected in ips:
       actual = expression.ExpressionGenerator.CanonicalizeIp(testip)
       self.assertEqual(actual, expected,
-                       'test input: %s, actual: %s, expected: %s' % (testip,
+                       'test input: {0!s}, actual: {1!s}, expected: {2!s}'.format(testip,
                                                                      actual,
                                                                      expected))
 
@@ -145,7 +145,7 @@ class CanonicalizationTest(unittest.TestCase):
       actual = expression.ExpressionGenerator.CanonicalizeUrl(testin)
       self.assertEqual(
           actual, expected,
-          'test input: %s, actual: %s, expected: %s' % (
+          'test input: {0!s}, actual: {1!s}, expected: {2!s}'.format(
           testin, actual, expected))
 
 
@@ -154,11 +154,11 @@ class ExprGenTest(unittest.TestCase):
     gen = expression.ExpressionGenerator(url)
     exprs = list(gen.Expressions())
     self.assertEqual(len(exprs), len(expected),
-                    'Length mismatch.\nExpected: %s\nActual:  %s' % (
+                    'Length mismatch.\nExpected: {0!s}\nActual:  {1!s}'.format(
         expected, exprs))
     for i in xrange(len(exprs)):
       self.assertEqual(exprs[i].Value(), expected[i],
-                       'List mismatch.\nExpected: %s\nAactual:  %s' % (expected,
+                       'List mismatch.\nExpected: {0!s}\nAactual:  {1!s}'.format(expected,
                                                                        exprs))
 
   def testExpressionGenerator(self):

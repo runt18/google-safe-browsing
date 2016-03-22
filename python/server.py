@@ -96,7 +96,7 @@ class Server(object):
     self._host, self._port = hp
     self._ssl_host, self._ssl_port = ssl_hp
     self._base_path = base_path
-    self._base_qry = 'client=%s&appver=%s&pver=%s' % (
+    self._base_qry = 'client={0!s}&appver={1!s}&pver={2!s}'.format(
         Server.CLIENT, Server.APPVER, Server.PVER)
     if gethash_server is None:
       self._gethash_host, self._gethash_port = hp
@@ -159,7 +159,7 @@ class Server(object):
       size_limit_kb = int(size_limit_bytes / 1024)
       if size_limit_kb == 0:
         size_limit_kb = 1
-      req_lines.append('s;%d' % (size_limit_kb,))
+      req_lines.append('s;{0:d}'.format(size_limit_kb))
     for sbl in sbls:
       dlreq = sbl.DownloadRequest(self.WillUseMac())
       req_lines.append(dlreq)
@@ -182,18 +182,18 @@ class Server(object):
     if self.WillUseMac():
       m = Server.MAC.match(line)
       if not m:
-        raise ResponseError('Could not parse MAC for downloads: "%s"' % (line,))
+        raise ResponseError('Could not parse MAC for downloads: "{0!s}"'.format(line))
       main_body_escaped_mac = m.group(1)
       logging.debug('Parsed main body MAC: "%s"', main_body_escaped_mac)
       linereader.ClearLinesRead()
       line = linereader.ReadLine()
     m = Server.NEXT.match(line)
     if not m:
-      raise ResponseError('Could not parse next for downloads: "%s"' % (line,))
+      raise ResponseError('Could not parse next for downloads: "{0!s}"'.format(line))
     try:
       dlresp.min_delay_sec = int(m.group(1))
     except ValueError, e:
-      raise ResponseError('Could not parse next for downloads: "%s"' % (line,))
+      raise ResponseError('Could not parse next for downloads: "{0!s}"'.format(line))
     active_sbl = None
     sblist_map = dict([(l.Name(), l) for l in sbls])
     logging.debug('valid list names: "%s"', ','.join(sblist_map.iterkeys()))
@@ -212,12 +212,12 @@ class Server(object):
       m = Server.LISTRESP.match(line)
       if m:
         if not sblist_map.has_key(m.group(1)):
-          raise ResponseError('invalid list in response: "%s"' % (m.group(1),))
+          raise ResponseError('invalid list in response: "{0!s}"'.format(m.group(1)))
         active_sbl = sblist_map[m.group(1)]
         continue
 
       if active_sbl is None:
-        raise ResponseError('no list set: "%s"' % (line,))
+        raise ResponseError('no list set: "{0!s}"'.format(line))
 
       m = Server.URLRESP.match(line)
       if m:
@@ -284,12 +284,12 @@ class Server(object):
       return ghresp
     for pre in prefixes:
       if len(pre) != prefix_length:
-        raise Error('All prefixes must have length: %d' % prefix_length)
+        raise Error('All prefixes must have length: {0:d}'.format(prefix_length))
 
     try:
       resp = self._MakeRequest(
           Server.GETHASH,
-          postdata='%d:%d\n%s' % (prefix_length, prefix_length * len(prefixes),
+          postdata='{0:d}:{1:d}\n{2!s}'.format(prefix_length, prefix_length * len(prefixes),
                                   ''.join(prefixes)),
           use_apikey=True,
           hp=(self._gethash_host, self._gethash_port))
@@ -313,8 +313,8 @@ class Server(object):
     raw_data = []
     for line in resp:
       raw_data.append(line)
-      bad_header = ResponseError('gethash: bad hashentry header: "%s"' % (
-          line,))
+      bad_header = ResponseError('gethash: bad hashentry header: "{0!s}"'.format(
+          line))
       spl = line.rstrip().split(':')
       if len(spl) != 3:
         raise bad_header
@@ -344,9 +344,9 @@ class Server(object):
       given_mac = base64.urlsafe_b64decode(escaped_mac)
     except Exception, e:
       logging.exception(e)
-      raise ResponseError('Bad MAC: %s' % (e,), e)
+      raise ResponseError('Bad MAC: {0!s}'.format(e), e)
     if computed_mac != given_mac:
-      raise ResponseError('Bad MAC. Computed: "%s", received: "%s"' % (
+      raise ResponseError('Bad MAC. Computed: "{0!s}", received: "{1!s}"'.format(
           base64.urlsafe_b64encode(computed_mac), escaped_mac))
 
   def _MakeRequest(self, path, postdata=None, hp=None, use_wrkey=True,
@@ -356,18 +356,18 @@ class Server(object):
 
     wrkey = ''
     if use_wrkey and self._wrkey is not None:
-      wrkey = '&wrkey=%s' % self._wrkey
+      wrkey = '&wrkey={0!s}'.format(self._wrkey)
     apikey_param = ''
     if use_apikey and self._apikey:
       apikey_param = '&apikey=' + self._apikey
-    url = '%s://%s:%d%s/%s?%s%s%s%s' % (
+    url = '{0!s}://{1!s}:{2:d}{3!s}/{4!s}?{5!s}{6!s}{7!s}{8!s}'.format(
         protocol, hp[0], hp[1], self._base_path,
         path, self._base_qry, wrkey, apikey_param, extra_params)
     logging.debug('http url: "%s"', url)
     try:
       resp = self._url_request_function(url, postdata)
     except Exception, e:
-      raise ServerError('%s failed: %s' % (path, e), original_error=e)
+      raise ServerError('{0!s} failed: {1!s}'.format(path, e), original_error=e)
     return resp
 
   def _GetMacKeys(self):
@@ -382,24 +382,24 @@ class Server(object):
     for line in resp:
       split = line.split(':')
       if len(split) != 3:
-        raise ResponseError('newkey: "%s"' % (line,))
+        raise ResponseError('newkey: "{0!s}"'.format(line))
       try:
         length = int(split[1])
       except ValueError:
-        raise ResponseError('newkey: "%s"' % (line,))
+        raise ResponseError('newkey: "{0!s}"'.format(line))
       if len(split[2]) < length:
-        raise ResponseError('newkey: "%s"' % (line,))
+        raise ResponseError('newkey: "{0!s}"'.format(line))
       if split[0] == 'clientkey':
         try:
           clientkey = split[2][:length]
           clientkey = base64.urlsafe_b64decode(clientkey)
         except TypeError:
-          raise ResponseError('could not decode clientkey: "%s", "%s"' % (
+          raise ResponseError('could not decode clientkey: "{0!s}", "{1!s}"'.format(
               line, clientkey))
       elif split[0] == 'wrappedkey':
         wrkey = split[2][:length]
       else:
-        raise ResponseError('newkey: "%s"' % (line,))
+        raise ResponseError('newkey: "{0!s}"'.format(line))
     resp.close()
     if clientkey is None or wrkey is None:
       raise ResponseError('response is missing wrappedkey or clientkey')
@@ -414,12 +414,12 @@ class Server(object):
     mac: If set, the mac to verify the redirect request with.
     extra_params: string to use as CGI args for the redirect request.
     """
-    url = 'http://%s%s' % (redirect, extra_params)
+    url = 'http://{0!s}{1!s}'.format(redirect, extra_params)
     logging.debug('Getting redirect: "%s"', url)
     try:
       resp = self._url_request_function(url, None)
     except Exception, e:
-      raise ServerError('Redirect to "%s" failed: %s' % (url, e),
+      raise ServerError('Redirect to "{0!s}" failed: {1!s}'.format(url, e),
                         original_error=e)
 
     # Verify mac
@@ -435,7 +435,7 @@ class Server(object):
       line = line.strip()
       if line == '':
         continue
-      bad_header = ResponseError('bad add or sub header: "%s"' % (line,))
+      bad_header = ResponseError('bad add or sub header: "{0!s}"'.format(line))
       m = Server.ADDORSUB.match(line)
       if not m:
         raise bad_header
@@ -476,7 +476,7 @@ class Server(object):
     # TODO: This doesn't check for errors like overlap and invalid ranges.
     ranges = seq_str.split(',')
     iters = []
-    ex = ResponseError('invalid sequence: "%s"' % (seq_str,))
+    ex = ResponseError('invalid sequence: "{0!s}"'.format(seq_str))
     for r in ranges:
       low_high = r.split('-')
       if len(low_high) == 1:
@@ -536,12 +536,12 @@ class GetHashResponse(object):
     listmap_str = ''
     listmap = sorted(self.listmap.items(), cmp=cmp_first)
     for listname, chunk_set in listmap:
-      listmap_str += '\t\t%s:\n' % (listname,)
+      listmap_str += '\t\t{0!s}:\n'.format(listname)
       for chunknum, prefixes in sorted(chunk_set.items(), cmp=cmp_first):
-        listmap_str += '\t\t%d: %s\n' % (
+        listmap_str += '\t\t{0:d}: {1!s}\n'.format(
             chunknum, ', '.join(
             [util.Bin2Hex(pre) for pre in prefixes]))
-    return 'GetHashResponse:\n\trekey: %s\n\tlistmap:\n%s' % (
+    return 'GetHashResponse:\n\trekey: {0!s}\n\tlistmap:\n{1!s}'.format(
         self.rekey, listmap_str)
 
   def __repr__(self):
@@ -587,13 +587,12 @@ class BlockReader(object):
     Read n bytes and return as a string.
     """
     if self._consumed + n > self._maxbytes:
-      raise Error('attempt to read more than %s bytes (%s)' %
-                  (self._maxbytes, self._consumed + n))
+      raise Error('attempt to read more than {0!s} bytes ({1!s})'.format(self._maxbytes, self._consumed + n))
     s = self._fh.read(n)
     self._consumed += len(s)
     self._data.append(s)
     if len(s) != n:
-      raise ResponseError('unable to read %d bytes' % (n,))
+      raise ResponseError('unable to read {0:d} bytes'.format(n))
     return s
 
   def ReadChunkNum(self):
@@ -692,7 +691,7 @@ class AddChunk(ListOp):
       self._sbl.AddPrefix(prefix, self._chunknum)
 
   def __str__(self):
-    return 'AddChunk %d, list %s: %d prefixes' % (
+    return 'AddChunk {0:d}, list {1!s}: {2:d} prefixes'.format(
         self._chunknum, self._sbl.Name(), len(self._prefixes))
 
 
@@ -729,7 +728,7 @@ class SubChunk(ListOp):
       self._sbl.RemovePrefix(prefix, self._chunknum, addchunknum)
 
   def __str__(self):
-    return 'SubChunk %d, list %s: %d prefixes' % (
+    return 'SubChunk {0:d}, list {1!s}: {2:d} prefixes'.format(
         self._chunknum, self._sbl.Name(), len(self._prefixes))
 
 
@@ -747,7 +746,7 @@ class AddDel(ListOp):
 
 
   def __str__(self):
-    return 'AddDel: (%s, %s)' % (self._sbl.Name(), self._chunknums)
+    return 'AddDel: ({0!s}, {1!s})'.format(self._sbl.Name(), self._chunknums)
 
 
 class SubDel(ListOp):
@@ -763,7 +762,7 @@ class SubDel(ListOp):
       self._sbl.DeleteSubChunk(num)
 
   def __str__(self):
-    return 'SubDel: (%s, %s)' % (self._sbl.Name(), self._chunknums)
+    return 'SubDel: ({0!s}, {1!s})'.format(self._sbl.Name(), self._chunknums)
 
 
 class EmptyAddChunks(ListOp):
@@ -779,7 +778,7 @@ class EmptyAddChunks(ListOp):
       self._sbl.AddEmptyAddChunk(num)
 
   def __str__(self):
-    return 'EmptyAddChunks: (%s, %s)' % (self._sbl.Name(), self._chunknums)
+    return 'EmptyAddChunks: ({0!s}, {1!s})'.format(self._sbl.Name(), self._chunknums)
 
 
 class EmptySubChunks(ListOp):
@@ -795,4 +794,4 @@ class EmptySubChunks(ListOp):
       self._sbl.AddEmptySubChunk(num)
 
   def __str__(self):
-    return 'EmptySubChunks: (%s, %s)' % (self._sbl.Name(), self._chunknums)
+    return 'EmptySubChunks: ({0!s}, {1!s})'.format(self._sbl.Name(), self._chunknums)

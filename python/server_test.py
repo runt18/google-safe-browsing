@@ -36,7 +36,7 @@ class HTTPError(Exception):
     self.code = code
 
   def __str__(self):
-    return 'HTTPError code:%d' % self.code
+    return 'HTTPError code:{0:d}'.format(self.code)
 
 
 class FakeServer(object):
@@ -85,7 +85,7 @@ class FakeServer(object):
           raise response
         else:
           return StringIO.StringIO(response)
-    raise Exception('No such data: %s' % url)
+    raise Exception('No such data: {0!s}'.format(url))
 
 
 class ServerTest(unittest.TestCase):
@@ -108,8 +108,8 @@ class ServerTest(unittest.TestCase):
 
   def testGetLists(self):
     response = 'lista\nlistb\nlistc'
-    response = '%s\n%s' % (self._Mac(response), response)
-    self._fake_sb_server.SetResponse(url_prefix='%s/list?' % self._base_url,
+    response = '{0!s}\n{1!s}'.format(self._Mac(response), response)
+    self._fake_sb_server.SetResponse(url_prefix='{0!s}/list?'.format(self._base_url),
                                      params=[('wrkey', 'BOGUS_WRAPPED_KEY'),
                                              ('apikey', 'BOGUS_API_KEY')],
                                      request=None,
@@ -151,7 +151,7 @@ class ServerTest(unittest.TestCase):
         'a:1:6:1546\n' +
         # Test an edge case where there are more than 255 entries for
         # the same host key
-        '1234\xFF%s' % ''.join(map(str, range(100000, 100255))) +
+        '1234\xFF{0!s}'.format(''.join(map(str, range(100000, 100255)))) +
         '1234\x01100255')
 
     self._fake_sb_server.SetResponse(
@@ -173,21 +173,21 @@ class ServerTest(unittest.TestCase):
 
     response = '\n'.join(['n:1800',
                           'i:lista',
-                          'u:rd.com/lista-s,%s' %
-                          self._Mac(lista_s_redirect_response),
-                          'u:rd.com/lista-a,%s' %
-                          self._Mac(lista_a_redirect_response),
+                          'u:rd.com/lista-s,{0!s}'.format(
+                          self._Mac(lista_s_redirect_response)),
+                          'u:rd.com/lista-a,{0!s}'.format(
+                          self._Mac(lista_a_redirect_response)),
                           'ad:1-2,4-5,7',
                           'i:listb',
-                          'u:rd.com/listb-a,%s' %
-                          self._Mac(listb_a_redirect_response),
+                          'u:rd.com/listb-a,{0!s}'.format(
+                          self._Mac(listb_a_redirect_response)),
                           'sd:2-6'])
     self._fake_sb_server.SetResponse(
-        url_prefix='%s/downloads?' % self._base_url,
+        url_prefix='{0!s}/downloads?'.format(self._base_url),
         params=[('wrkey', 'BOGUS_WRAPPED_KEY'),
                 ('apikey', 'BOGUS_API_KEY')],
-        request='s;%d\nlista;mac\nlistb;mac\n' % (1<<10),
-        response='m:%s\n%s' % (self._Mac(response), response))
+        request='s;{0:d}\nlista;mac\nlistb;mac\n'.format((1<<10)),
+        response='m:{0!s}\n{1!s}'.format(self._Mac(response), response))
 
     # Perform the actual download request.
     sblists = [sblist.List('lista'), sblist.List('listb')]
@@ -234,16 +234,16 @@ class ServerTest(unittest.TestCase):
                      list(response.listops['listb'][1]._chunknums))
 
   def testGetFullHashes(self):
-    response = 'lista:123:32\n89AB%s' % (28 * 'A')
+    response = 'lista:123:32\n89AB{0!s}'.format((28 * 'A'))
     self._fake_sb_server.SetResponse(
-        url_prefix='%s/gethash?' % self._base_url,
+        url_prefix='{0!s}/gethash?'.format(self._base_url),
         params=[('wrkey', 'BOGUS_WRAPPED_KEY'),
                 ('apikey', 'BOGUS_API_KEY')],
         request='4:12\n0123456789AB',
-        response='%s\n%s' % (self._Mac(response), response))
+        response='{0!s}\n{1!s}'.format(self._Mac(response), response))
 
     self._fake_sb_server.SetResponse(
-        url_prefix='%s/gethash?' % self._base_url,
+        url_prefix='{0!s}/gethash?'.format(self._base_url),
         params=[('wrkey', 'BOGUS_WRAPPED_KEY'),
                 ('apikey', 'BOGUS_API_KEY')],
         request='10:10\n0123456789',
@@ -252,7 +252,7 @@ class ServerTest(unittest.TestCase):
     resp = self._server.GetFullHashes(['0123', '4567', '89AB'], 4)
     self.assertTrue(isinstance(resp, server.GetHashResponse))
     self.assertFalse(resp.rekey)
-    self.assertEqual({'lista': { 123: set(['89AB%s' % (28 * 'A')])}},
+    self.assertEqual({'lista': { 123: set(['89AB{0!s}'.format((28 * 'A'))])}},
                      resp.listmap)
 
     resp = self._server.GetFullHashes(['0123456789'], 10)

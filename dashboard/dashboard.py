@@ -104,7 +104,7 @@ class DashboardRequest(BaseHTTPServer.BaseHTTPRequestHandler):
     {'/'             : self.HandleStatus,
      '/check_url'    : self.HandleCheckUrl,
      '/quitquitquit' : self.Quit}.get(self.path,
-                    lambda: self.send_error(404, '%s not found' % self.path))()
+                    lambda: self.send_error(404, '{0!s} not found'.format(self.path)))()
 
   def HandleStatus(self):
     write = self.wfile.write
@@ -120,13 +120,13 @@ class DashboardRequest(BaseHTTPServer.BaseHTTPRequestHandler):
     if sync_time is None:
       write('Client waiting for initial sync.<br/>')
     else:
-      write('Client completed initial sync at %s after %d downloads.<br/>' % (
+      write('Client completed initial sync at {0!s} after {1:d} downloads.<br/>'.format(
           sync_time, sync_updates))
-    write('Client received last update at %s.<br/>' % (stats_time,))
+    write('Client received last update at {0!s}.<br/>'.format(stats_time))
 
     for s in lists_stats:
-      write('<table border=1><tr><th align=left>%s</th></tr></table>' % (
-          s.chunk_range_str,))
+      write('<table border=1><tr><th align=left>{0!s}</th></tr></table>'.format(
+          s.chunk_range_str))
       write('<table border=1><tr><th>Expressions</th>' +
         '<th>Add Chunks</th><th>Sub Chunks</th>' +
         '<th>Expressions / Chunk</th></tr>')
@@ -148,17 +148,17 @@ class DashboardRequest(BaseHTTPServer.BaseHTTPRequestHandler):
     write('<html><head><title>Check URL</title></head><body>')
     url_param = self.query_params.get(DashboardRequest.PARAM_URL, [])
     if len(url_param) != 1:
-      write('bad url query param: "%s"</body></html>' % (url_param,))
+      write('bad url query param: "{0!s}"</body></html>'.format(url_param))
       return
     url = url_param[0]
     matches = self.server.sbc.CheckUrl(url, debug_info=True)
     if len(matches) == 0:
-      write('No matches for "%s"</body></html>' % (url,))
+      write('No matches for "{0!s}"</body></html>'.format(url))
       return
 
     write('<ul>')
     for listname, match, addchunknum in matches:
-      write('<li>%s, addchunk number %d: %s</li>' % (
+      write('<li>{0!s}, addchunk number {1:d}: {2!s}</li>'.format(
           listname, addchunknum, match))
     write('</ul></body></html>')
 

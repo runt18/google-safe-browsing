@@ -23,8 +23,8 @@ import struct
 
 def Bin2Hex(hash):
   hexchars = []
-  for i in struct.unpack('%dB' % (len(hash),), hash):
-    hexchars.append('%02x' % (i,))
+  for i in struct.unpack('{0:d}B'.format(len(hash)), hash):
+    hexchars.append('{0:02x}'.format(i))
   return ''.join(hexchars)
 
 def GetHash256(expr):

@@ -28,8 +28,7 @@ class ListTest(unittest.TestCase):
   def assertSameElements(self, a, b):
     a = sorted(list(a))
     b = sorted(list(b))
-    self.assertEqual(a, b, 'Expected: [%s], Found: [%s]' %
-                     (', '.join(map(str, a)), ', '.join(map(str, b))))
+    self.assertEqual(a, b, 'Expected: [{0!s}], Found: [{1!s}]'.format(', '.join(map(str, a)), ', '.join(map(str, b))))
 
   def setUp(self):
     self._list = sblist.List('goog-malware-shavar')
